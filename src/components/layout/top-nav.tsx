@@ -101,10 +101,20 @@ export default function TopNav() {
           {/* Theme Toggle */}
           <button
             className="p-2 text-slate-400 hover:text-white transition-colors"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => {
+              const next = theme === "dark" ? "light" : "dark";
+              setTheme(next);
+              document.documentElement.classList.toggle("dark", next === "dark");
+              document.documentElement.classList.toggle("light", next === "light");
+            }}
           >
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
+
+          {/* Settings */}
+          <Link href="/settings" className="p-2 text-slate-400 hover:text-white transition-colors">
+            <Settings className="w-5 h-5" />
+          </Link>
 
           {/* User Dropdown */}
           <div className="relative" ref={dropdownRef}>
