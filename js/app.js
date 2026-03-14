@@ -39,7 +39,11 @@ const App = {
             const pass = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
 
-            if (email === 'bpillai100@gmail.com' && pass === 'Natty@2026!!') {
+            // Check if admin password was reset
+            const customPwd = localStorage.getItem('infraAdminPwd');
+            const validPwd = customPwd || 'Natty@2026!!';
+
+            if (email === 'bpillai100@gmail.com' && pass === validPwd) {
                 localStorage.setItem('infraSession', JSON.stringify({ user: 'B Pillai', email: email, loginAt: Date.now() }));
                 errorEl.textContent = '';
                 this.init(); // Re-init with session

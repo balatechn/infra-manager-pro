@@ -59,6 +59,22 @@ const SettingsPage = {
             </div>
         </div>
 
+        <!-- Reset Password Modal -->
+        <div class="modal-overlay" id="resetPwdModal">
+            <div class="modal-panel">
+                <h3>Reset Password</h3>
+                <input type="hidden" id="resetPwdUserId">
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 16px;">Set a new password for <strong id="resetPwdUserName"></strong></p>
+                <div class="form-group"><label>New Password</label><input type="password" class="form-input" id="resetPwdNew" placeholder="Enter new password"></div>
+                <div class="form-group"><label>Confirm Password</label><input type="password" class="form-input" id="resetPwdConfirm" placeholder="Confirm new password"></div>
+                <div id="resetPwdError" style="color:#EF4444;font-size:0.8rem;min-height:20px;margin-bottom:6px;"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('resetPwdModal').classList.remove('open')">Cancel</button>
+                    <button class="btn btn-primary btn-sm" onclick="SettingsPage.saveResetPassword()">Reset Password</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Add/Edit Role Modal -->
         <div class="modal-overlay" id="roleModal">
             <div class="modal-panel">
@@ -169,7 +185,7 @@ const SettingsPage = {
                 <input type="text" class="form-input" placeholder="Search users by name, email, role..." id="userSearchInput" oninput="SettingsPage.filterUsers(this.value)" style="max-width:360px;">
             </div>
             <table class="data-table">
-                <thead><tr><th>User</th><th>Role</th><th>Department</th><th>Status</th><th>Last Active</th><th style="width:120px;">Actions</th></tr></thead>
+                <thead><tr><th>User</th><th>Role</th><th>Department</th><th>Status</th><th>Last Active</th><th style="width:150px;">Actions</th></tr></thead>
                 <tbody id="usersTableBody">${this.renderUserRows(this.users)}</tbody>
             </table>
         </div>`;
@@ -197,6 +213,7 @@ const SettingsPage = {
                 <td>
                     <div class="action-btns">
                         <button class="action-btn" title="Edit" onclick="SettingsPage.openUserModal(${u.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button class="action-btn" title="Reset Password" onclick="SettingsPage.openResetPassword(${u.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></button>
                         <button class="action-btn" title="${u.status==='Active'?'Deactivate':'Activate'}" onclick="SettingsPage.toggleUserStatus(${u.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${u.status==='Active'?'<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>':'<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'}</svg></button>
                         <button class="action-btn" title="Delete" onclick="SettingsPage.deleteUser(${u.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
                     </div>
@@ -283,6 +300,41 @@ const SettingsPage = {
             const res = await fetch('/api/users?id=' + userId, { method:'DELETE' });
             if (res.ok) { this.users = this.users.filter(u => u.id !== userId); document.getElementById('settingsContent').innerHTML = this.renderUsers(); }
         } catch(e) {}
+    },
+
+    openResetPassword(userId) {
+        const user = this.users.find(u => u.id === userId);
+        if (!user) return;
+        document.getElementById('resetPwdUserId').value = userId;
+        document.getElementById('resetPwdUserName').textContent = user.name + ' (' + user.email + ')';
+        document.getElementById('resetPwdNew').value = '';
+        document.getElementById('resetPwdConfirm').value = '';
+        document.getElementById('resetPwdError').textContent = '';
+        document.getElementById('resetPwdModal').classList.add('open');
+    },
+
+    saveResetPassword() {
+        const userId = document.getElementById('resetPwdUserId').value;
+        const newPwd = document.getElementById('resetPwdNew').value;
+        const confirmPwd = document.getElementById('resetPwdConfirm').value;
+        const errorEl = document.getElementById('resetPwdError');
+
+        if (!newPwd || newPwd.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; return; }
+        if (newPwd !== confirmPwd) { errorEl.textContent = 'Passwords do not match'; return; }
+
+        // Update login credentials if resetting for the logged-in admin
+        const session = JSON.parse(localStorage.getItem('infraSession') || '{}');
+        const user = this.users.find(u => u.id === parseInt(userId));
+        if (user && user.email === session.email) {
+            localStorage.setItem('infraAdminPwd', newPwd);
+        }
+        // Store the password hash for the user (client-side for demo)
+        const pwdStore = JSON.parse(localStorage.getItem('infraUserPwds') || '{}');
+        pwdStore[userId] = newPwd;
+        localStorage.setItem('infraUserPwds', JSON.stringify(pwdStore));
+
+        document.getElementById('resetPwdModal').classList.remove('open');
+        alert('Password reset successfully for ' + (user ? user.name : 'user') + '.');
     },
 
     /* ===== ROLES & PERMISSIONS ===== */
