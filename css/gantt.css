@@ -25,11 +25,11 @@
     padding: 10px 14px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: #F1F5F9;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-light);
+    background: #0F172A;
+    border-bottom: 1px solid #F59E0B;
     height: 54px;
     align-items: end;
     padding-bottom: 8px;
@@ -113,8 +113,8 @@
 .gantt-timeline-header {
     display: flex;
     height: 54px;
-    background: var(--bg-elevated);
-    border-bottom: 1px solid var(--border-light);
+    background: #0F172A;
+    border-bottom: 1px solid #F59E0B;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -131,8 +131,8 @@
     padding: 6px 0;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-light);
+    color: #F1F5F9;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .gantt-weeks {
@@ -261,18 +261,18 @@
 
 .gantt-zoom-btn {
     padding: 4px 10px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-light);
+    background: #0F172A;
+    border: 1px solid #F59E0B;
     border-radius: var(--radius-sm);
-    color: var(--text-secondary);
+    color: #F1F5F9;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.75rem;
     transition: all var(--transition-fast);
 }
 
-.gantt-zoom-btn:hover { border-color: var(--primary); color: var(--primary-light); }
-.gantt-zoom-btn.active { background: var(--primary-bg); border-color: var(--primary); color: var(--primary-light); }
+.gantt-zoom-btn:hover { border-color: #FBBF24; color: #FBBF24; }
+.gantt-zoom-btn.active { background: rgba(245, 158, 11, 0.15); border-color: #F59E0B; color: #F59E0B; }
 
 .gantt-legend {
     display: flex;

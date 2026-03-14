@@ -578,11 +578,11 @@ select.form-input {
 .btn-warning { background: var(--warning); color: var(--text-inverse); }
 
 .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border-light);
-    color: var(--text-secondary);
+    background: #0F172A;
+    border: 1px solid #F59E0B;
+    color: #F1F5F9;
 }
-.btn-outline:hover { border-color: var(--primary); color: var(--primary-light); }
+.btn-outline:hover { border-color: #FBBF24; color: #FBBF24; }
 
 .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
 .btn-lg { padding: 10px 20px; font-size: 0.9375rem; }
