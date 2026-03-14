@@ -32,8 +32,8 @@ const App = {
             this.destroyCharts();
         }
 
-        // Update sidebar active state
-        document.querySelectorAll('.nav-item').forEach(item => {
+        // Update nav active state
+        document.querySelectorAll('.page-nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.page === page);
         });
 
@@ -51,8 +51,8 @@ const App = {
             case 'project-details':
                 main.innerHTML = ProjectDetailsPage.render(params);
                 ProjectDetailsPage.init(params);
-                // Keep projects active in sidebar
-                document.querySelectorAll('.nav-item').forEach(item => {
+                // Keep projects active in nav
+                document.querySelectorAll('.page-nav-item').forEach(item => {
                     item.classList.toggle('active', item.dataset.page === 'projects');
                 });
                 break;
@@ -92,12 +92,12 @@ const App = {
         main.scrollTop = 0;
         window.scrollTo(0, 0);
 
-        // Close mobile sidebar
-        document.getElementById('sidebar').classList.remove('open');
+        // Close mobile nav
+        document.getElementById('pageNav').classList.remove('open');
     },
 
     bindNavigation() {
-        document.querySelectorAll('.nav-item').forEach(item => {
+        document.querySelectorAll('.page-nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.navigate(item.dataset.page);
             });
@@ -145,15 +145,18 @@ const App = {
     },
 
     bindSidebar() {
-        const toggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('mobileMenuToggle');
+        const pageNav = document.getElementById('pageNav');
 
-        if (toggle) {
+        if (toggle && pageNav) {
             toggle.addEventListener('click', () => {
-                if (window.innerWidth <= 1024) {
-                    sidebar.classList.toggle('open');
-                } else {
-                    document.body.classList.toggle('sidebar-collapsed');
+                pageNav.classList.toggle('open');
+            });
+
+            // Close nav when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && !pageNav.contains(e.target) && !toggle.contains(e.target)) {
+                    pageNav.classList.remove('open');
                 }
             });
         }
