@@ -12,6 +12,7 @@ const App = {
         this.bindNavigation();
         this.bindModal();
         this.bindNotifications();
+        this.bindUserMenu();
         this.bindSidebar();
         this.bindKeyboard();
         this.bindTheme();
@@ -195,8 +196,40 @@ const App = {
             if (e.key === 'Escape') {
                 document.getElementById('createTaskModal').classList.remove('open');
                 document.getElementById('notificationPanel').classList.remove('open');
+                const dd = document.getElementById('userDropdown');
+                if (dd) dd.classList.remove('open');
             }
         });
+    },
+
+    bindUserMenu() {
+        const avatar = document.getElementById('userMenu');
+        const dropdown = document.getElementById('userDropdown');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (avatar && dropdown) {
+            avatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+                // Close notifications panel if open
+                document.getElementById('notificationPanel').classList.remove('open');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && e.target !== avatar) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.clear();
+                    window.location.reload();
+                }
+            });
+        }
     }
 };
 
