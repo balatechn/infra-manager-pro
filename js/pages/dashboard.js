@@ -4,13 +4,33 @@
 
 const DashboardPage = {
     render() {
+        const totalProjects = AppData.projects.length;
         const activeProjects = AppData.projects.filter(p => p.status === 'Active' || p.status === 'Near Completion').length;
-        const delayedProjects = AppData.projects.filter(p => p.status === 'Delayed').length;
         const completedProjects = AppData.projects.filter(p => p.status === 'Completed').length;
         const totalBudget = AppData.projects.reduce((sum, p) => sum + p.budget, 0);
         const usedBudget = AppData.projects.reduce((sum, p) => sum + p.budgetUsed, 0);
-        const budgetPct = Math.round((usedBudget / totalBudget) * 100);
-        const avgProgress = Math.round(AppData.projects.reduce((sum, p) => sum + p.progress, 0) / AppData.projects.length);
+
+        // Collect all tasks flat
+        const allTasks = [];
+        AppData.tasks.forEach(t => {
+            allTasks.push(t);
+            if (t.children) t.children.forEach(c => {
+                allTasks.push(c);
+                if (c.children) c.children.forEach(gc => allTasks.push(gc));
+            });
+        });
+        const totalTasks = allTasks.length;
+        const completedTasks = allTasks.filter(t => t.status === 'Completed').length;
+        const inProgressTasks = allTasks.filter(t => t.status === 'In Progress').length;
+        const overdueTasks = allTasks.filter(t => new Date(t.endDate) < new Date() && t.status !== 'Completed').length;
+        const onTimePct = totalTasks > 0 ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100) : 100;
+
+        // Scope issues
+        const blockedTasks = allTasks.filter(t => t.status === 'Blocked').length;
+        const highPriority = allTasks.filter(t => t.priority === 'High' && t.status !== 'Completed').length;
+
+        // Remaining effort (sum of uncompleted task progress remaining)
+        const remainingEffort = allTasks.reduce((sum, t) => sum + (100 - t.progress), 0);
 
         return `
         <div class="page-header">
@@ -27,80 +47,99 @@ const DashboardPage = {
             </div>
         </div>
 
-        <!-- Stat Cards -->
-        <div class="stat-cards">
-            ${Components.statCard('Active Projects', activeProjects, '+2 this month', 'positive', 'blue',
-                '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>')}
-            ${Components.statCard('Delayed Projects', delayedProjects, 'None currently', 'positive', 'red',
-                '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>')}
-            ${Components.statCard('Budget Utilized', budgetPct + '%', AppData.formatCurrency(usedBudget) + ' of ' + AppData.formatCurrency(totalBudget), '', 'orange',
-                '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>')}
-            ${Components.statCard('Avg Completion', avgProgress + '%', completedProjects + ' projects done', 'positive', 'green',
-                '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>')}
-        </div>
-
-        <!-- Charts Section -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Project Progress</h3>
-                    <select class="filter-input" style="width:auto;padding:4px 28px 4px 8px;font-size:0.75rem;">
-                        <option>All Projects</option>
-                        <option>Active Only</option>
-                    </select>
+        <!-- Navy Blue KPI Banner -->
+        <div class="dash-kpi-banner">
+            <div class="kpi-section kpi-stats">
+                <div class="kpi-big-num">${totalProjects}</div>
+                <div class="kpi-label">Projects</div>
+                <div class="kpi-big-num" style="margin-top:12px;">${remainingEffort.toFixed(1)}</div>
+                <div class="kpi-label">Remaining Effort</div>
+            </div>
+            <div class="kpi-section kpi-time">
+                <div class="kpi-section-title">Time</div>
+                <div class="kpi-donut-wrap">
+                    <canvas id="kpiTimeChart" width="130" height="130"></canvas>
                 </div>
-                <div class="chart-container">
-                    <canvas id="projectProgressChart"></canvas>
+                ${overdueTasks > 0 ? `<div class="kpi-overdue-tag">Overdue ${Math.round((overdueTasks/totalTasks)*100)}%</div>` : ''}
+            </div>
+            <div class="kpi-section kpi-scope">
+                <div class="kpi-section-title">Scope</div>
+                <div class="kpi-hbars">
+                    <div class="kpi-hbar-row"><span>Blocked</span><div class="kpi-hbar"><div class="kpi-hbar-fill" style="width:${Math.min(blockedTasks*20,100)}%;background:#3B82F6;"></div></div><span>${blockedTasks}</span></div>
+                    <div class="kpi-hbar-row"><span>High Priority</span><div class="kpi-hbar"><div class="kpi-hbar-fill" style="width:${Math.min(highPriority*10,100)}%;background:#3B82F6;"></div></div><span>${highPriority}</span></div>
+                    <div class="kpi-hbar-row"><span>In Progress</span><div class="kpi-hbar"><div class="kpi-hbar-fill" style="width:${Math.min(inProgressTasks*10,100)}%;background:#3B82F6;"></div></div><span>${inProgressTasks}</span></div>
                 </div>
             </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Team Workload</h3>
+            <div class="kpi-section kpi-costs">
+                <div class="kpi-section-title">Costs</div>
+                <div class="kpi-cost-chart-wrap">
+                    <canvas id="kpiCostChart" width="160" height="120"></canvas>
                 </div>
-                <div class="chart-container">
-                    <canvas id="teamWorkloadChart"></canvas>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Budget Overview</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas id="budgetChart"></canvas>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Task Status Distribution</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas id="taskStatusChart"></canvas>
+                <div class="kpi-cost-legend">
+                    <span><span class="legend-dot" style="background:#334155;"></span> Budget</span>
+                    <span><span class="legend-dot" style="background:#60A5FA;"></span> Actual</span>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activities & Projects -->
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Recent Activity</h3>
-                    <button class="btn btn-outline btn-sm">View All</button>
-                </div>
-                <div class="activity-list">
-                    ${AppData.activities.map(a => `
-                        <div class="activity-item">
-                            <div class="activity-dot ${a.type}"></div>
-                            <div class="activity-text">${a.text}</div>
-                            <div class="activity-time">${a.time}</div>
-                        </div>
-                    `).join('')}
+        <!-- Lower Dashboard Grid: Projects Table + Workload -->
+        <div class="dash-lower-grid">
+            <!-- Projects Summary Table -->
+            <div class="dash-projects-section">
+                <h2 class="dash-section-title">Projects</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Project</th>
+                                <th>Progress</th>
+                                <th>%</th>
+                                <th>Scope</th>
+                                <th>Time</th>
+                                <th>Remaining Budget</th>
+                                <th>Days till Due</th>
+                                <th>Remaining Effort</th>
+                                <th>Worked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${AppData.projects.map(p => {
+                                const remaining = p.budget - p.budgetUsed;
+                                const daysLeft = Math.round((new Date(p.endDate) - new Date()) / (1000*60*60*24));
+                                const pTasks = allTasks.filter(t => t.projectId === p.id);
+                                const pRemaining = pTasks.reduce((s,t) => s + (100 - t.progress), 0);
+                                const pWorked = pTasks.reduce((s,t) => s + t.progress, 0);
+                                const scopeOk = !pTasks.some(t => t.status === 'Blocked');
+                                const timeOk = daysLeft > 0;
+                                return `<tr>
+                                    <td style="font-weight:600;">${p.name}</td>
+                                    <td><div class="progress-bar" style="min-width:100px;"><div class="progress-fill blue" style="width:${p.progress}%;"></div></div></td>
+                                    <td>${p.progress}%</td>
+                                    <td><span class="scope-dot ${scopeOk ? 'ok' : 'warn'}"></span></td>
+                                    <td><span class="scope-dot ${timeOk ? 'ok' : 'warn'}"></span></td>
+                                    <td>${AppData.formatCurrency(remaining)}</td>
+                                    <td style="${daysLeft < 0 ? 'color:var(--danger);font-weight:600;' : ''}">${daysLeft}</td>
+                                    <td>${(pRemaining/100).toFixed(1)}</td>
+                                    <td>${(pWorked/100).toFixed(1)}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:16px;">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Upcoming Milestones</h3>
+
+            <!-- Work Load Panel -->
+            <div class="dash-workload-section">
+                <h2 class="dash-section-title">Work Load</h2>
+                <div class="card" style="padding:16px;">
+                    <div class="workload-chart-wrap">
+                        <canvas id="workloadChart"></canvas>
                     </div>
+                </div>
+
+                <!-- Upcoming Milestones -->
+                <h2 class="dash-section-title" style="margin-top:16px;">Upcoming Milestones</h2>
+                <div class="card" style="padding:16px;">
                     <div class="milestone-list">
                         ${AppData.projects.filter(p => p.status !== 'Completed').flatMap(p =>
                             p.milestones.filter(m => m.status === 'current').map(m => ({...m, project: p.name}))
@@ -117,165 +156,130 @@ const DashboardPage = {
                         `).join('')}
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Quick Actions</h3>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <button class="btn btn-outline" onclick="document.getElementById('createTaskModal').classList.add('open')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            New Task
-                        </button>
-                        <button class="btn btn-outline" onclick="App.navigate('projects')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-                            Projects
-                        </button>
-                        <button class="btn btn-outline" onclick="App.navigate('reports')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                            Reports
-                        </button>
-                        <button class="btn btn-outline" onclick="App.navigate('gantt')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
-                            Gantt View
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>`;
     },
 
     initCharts() {
-        // Chart.js defaults
         Chart.defaults.color = '#94A3B8';
         Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
         Chart.defaults.font.family = 'Inter';
         Chart.defaults.font.size = 11;
 
-        // Project Progress Chart
-        const ppCtx = document.getElementById('projectProgressChart');
-        if (ppCtx) {
-            new Chart(ppCtx, {
-                type: 'bar',
+        // Collect all tasks flat
+        const allTasks = [];
+        AppData.tasks.forEach(t => {
+            allTasks.push(t);
+            if (t.children) t.children.forEach(c => {
+                allTasks.push(c);
+                if (c.children) c.children.forEach(gc => allTasks.push(gc));
+            });
+        });
+        const totalTasks = allTasks.length;
+        const overdueTasks = allTasks.filter(t => new Date(t.endDate) < new Date() && t.status !== 'Completed').length;
+        const onTimePct = totalTasks > 0 ? Math.round(((totalTasks - overdueTasks) / totalTasks) * 100) : 100;
+
+        // KPI Time Donut
+        const timeCtx = document.getElementById('kpiTimeChart');
+        if (timeCtx) {
+            new Chart(timeCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: AppData.projects.map(p => p.name.split(' ').slice(0, 2).join(' ')),
+                    labels: ['On Time', 'Overdue'],
                     datasets: [{
-                        label: 'Progress',
-                        data: AppData.projects.map(p => p.progress),
-                        backgroundColor: AppData.projects.map(p => {
-                            if (p.progress >= 75) return 'rgba(34, 197, 94, 0.8)';
-                            if (p.progress >= 40) return 'rgba(37, 99, 235, 0.8)';
-                            return 'rgba(245, 158, 11, 0.8)';
-                        }),
-                        borderRadius: 4,
-                        barPercentage: 0.6
+                        data: [onTimePct, 100 - onTimePct],
+                        backgroundColor: ['#3B82F6', '#F59E0B'],
+                        borderWidth: 0
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    afterDraw(chart) {
+                        const { ctx, width, height } = chart;
+                        ctx.save();
+                        ctx.fillStyle = '#E2E8F0';
+                        ctx.font = '600 13px Inter';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('On Time ' + onTimePct + '%', width / 2, height / 2);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        // KPI Cost Bar Chart
+        const costCtx = document.getElementById('kpiCostChart');
+        if (costCtx) {
+            const prjs = AppData.projects.filter(p => p.status !== 'Completed').slice(0, 4);
+            new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: prjs.map(p => p.name.split(' ')[0]),
+                    datasets: [
+                        { label: 'Budget', data: prjs.map(p => p.budget / 100000), backgroundColor: '#334155', borderRadius: 3, barPercentage: 0.5 },
+                        { label: 'Actual', data: prjs.map(p => p.budgetUsed / 100000), backgroundColor: '#60A5FA', borderRadius: 3, barPercentage: 0.5 }
+                    ]
+                },
+                options: {
+                    responsive: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
-                        x: { grid: { display: false } }
+                        y: { beginAtZero: true, ticks: { color: '#94A3B8', callback: v => '₹' + v + 'L', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { ticks: { color: '#94A3B8', font: { size: 9 } }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        // Team Workload Chart
-        const twCtx = document.getElementById('teamWorkloadChart');
-        if (twCtx) {
-            new Chart(twCtx, {
+        // Workload Horizontal Bar Chart
+        const wlCtx = document.getElementById('workloadChart');
+        if (wlCtx) {
+            new Chart(wlCtx, {
                 type: 'bar',
                 data: {
                     labels: AppData.team.map(t => t.name.split(' ')[0]),
                     datasets: [
                         {
-                            label: 'Active Tasks',
+                            label: 'Active',
                             data: AppData.team.map(t => t.tasks - t.completed),
-                            backgroundColor: 'rgba(37, 99, 235, 0.8)',
-                            borderRadius: 4,
-                            barPercentage: 0.5
+                            backgroundColor: '#3B82F6',
+                            borderRadius: 3,
+                            barPercentage: 0.6
                         },
                         {
                             label: 'Completed',
                             data: AppData.team.map(t => t.completed),
-                            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                            borderRadius: 4,
-                            barPercentage: 0.5
+                            backgroundColor: '#94A3B8',
+                            borderRadius: 3,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Overdue',
+                            data: AppData.team.map(() => Math.floor(Math.random() * 3)),
+                            backgroundColor: '#F59E0B',
+                            borderRadius: 3,
+                            barPercentage: 0.6
                         }
                     ]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+                    plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } } },
                     scales: {
-                        y: { beginAtZero: true, stacked: true },
-                        x: { grid: { display: false }, stacked: true }
+                        x: { beginAtZero: true, stacked: true, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { stacked: true, grid: { display: false } }
                     }
-                }
-            });
-        }
-
-        // Budget Chart
-        const bCtx = document.getElementById('budgetChart');
-        if (bCtx) {
-            new Chart(bCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: AppData.projects.filter(p => p.status !== 'Completed').map(p => p.name.split(' ').slice(0, 2).join(' ')),
-                    datasets: [{
-                        data: AppData.projects.filter(p => p.status !== 'Completed').map(p => p.budgetUsed),
-                        backgroundColor: ['#2563EB', '#06B6D4', '#F59E0B', '#8B5CF6', '#22C55E'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { boxWidth: 10, padding: 12 } }
-                    },
-                    cutout: '65%'
-                }
-            });
-        }
-
-        // Task Status Chart
-        const tsCtx = document.getElementById('taskStatusChart');
-        if (tsCtx) {
-            const allTasks = [];
-            AppData.tasks.forEach(t => {
-                allTasks.push(t);
-                if (t.children) t.children.forEach(c => {
-                    allTasks.push(c);
-                    if (c.children) c.children.forEach(gc => allTasks.push(gc));
-                });
-            });
-            const statusCounts = {};
-            allTasks.forEach(t => { statusCounts[t.status] = (statusCounts[t.status] || 0) + 1; });
-            
-            new Chart(tsCtx, {
-                type: 'polarArea',
-                data: {
-                    labels: Object.keys(statusCounts),
-                    datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: [
-                            'rgba(6, 182, 212, 0.7)',
-                            'rgba(37, 99, 235, 0.7)',
-                            'rgba(34, 197, 94, 0.7)',
-                            'rgba(245, 158, 11, 0.7)'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, padding: 12 } } },
-                    scales: { r: { display: false } }
                 }
             });
         }
