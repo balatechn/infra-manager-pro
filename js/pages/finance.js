@@ -371,7 +371,7 @@ const FinancePage = {
         if (!payload.invoice_number) { alert('Invoice number is required'); return; }
         try {
             const isEdit = document.getElementById('lmId').value;
-            const res = await fetch('/api/billing-ledger', {
+            const res = await fetch('/api/finance?entity=billing-ledger', {
                 method: isEdit ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -386,7 +386,7 @@ const FinancePage = {
     async deleteLedger(id) {
         if (!confirm('Delete this invoice record?')) return;
         try {
-            await fetch('/api/billing-ledger', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            await fetch('/api/finance?entity=billing-ledger', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
             await this.loadData();
             this.switchTab('fin-ledger');
         } catch (e) { alert('Error: ' + e.message); }
@@ -529,7 +529,7 @@ const FinancePage = {
         if (!payload.month) { alert('Month is required'); return; }
         try {
             const isEdit = document.getElementById('amId').value;
-            await fetch('/api/accrual-budget', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await fetch('/api/finance?entity=accrual-budget', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             this.closeAccrualModal();
             await this.loadData();
             this.switchTab('fin-accrual');
@@ -539,7 +539,7 @@ const FinancePage = {
     async deleteAccrual(id) {
         if (!confirm('Delete this accrual entry?')) return;
         try {
-            await fetch('/api/accrual-budget', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            await fetch('/api/finance?entity=accrual-budget', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
             await this.loadData();
             this.switchTab('fin-accrual');
         } catch (e) { alert('Error: ' + e.message); }
@@ -697,7 +697,7 @@ const FinancePage = {
         if (!payload.invoice_number) { alert('Invoice number is required'); return; }
         try {
             const isEdit = document.getElementById('bmId').value;
-            await fetch('/api/bills-received', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await fetch('/api/finance?entity=bills-received', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             this.closeBillModal();
             await this.loadData();
             this.switchTab('fin-bills');
@@ -707,7 +707,7 @@ const FinancePage = {
     async deleteBill(id) {
         if (!confirm('Delete this bill record?')) return;
         try {
-            await fetch('/api/bills-received', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            await fetch('/api/finance?entity=bills-received', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
             await this.loadData();
             this.switchTab('fin-bills');
         } catch (e) { alert('Error: ' + e.message); }
@@ -824,7 +824,7 @@ const FinancePage = {
         };
         try {
             const isEdit = document.getElementById('pmId').value;
-            await fetch('/api/payments', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await fetch('/api/finance?entity=payments', { method: isEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             this.closePaymentModal();
             await this.loadData();
             this.switchTab('fin-payments');
@@ -834,7 +834,7 @@ const FinancePage = {
     async deletePayment(id) {
         if (!confirm('Delete this payment record?')) return;
         try {
-            await fetch('/api/payments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            await fetch('/api/finance?entity=payments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
             await this.loadData();
             this.switchTab('fin-payments');
         } catch (e) { alert('Error: ' + e.message); }
@@ -985,12 +985,12 @@ const FinancePage = {
     async loadData() {
         try {
             const [ledger, accrual, bills, payments, vendors, departments] = await Promise.all([
-                fetch('/api/billing-ledger').then(r => r.ok ? r.json() : []),
-                fetch('/api/accrual-budget').then(r => r.ok ? r.json() : []),
-                fetch('/api/bills-received').then(r => r.ok ? r.json() : []),
-                fetch('/api/payments').then(r => r.ok ? r.json() : []),
-                fetch('/api/vendors').then(r => r.ok ? r.json() : []),
-                fetch('/api/departments').then(r => r.ok ? r.json() : [])
+                fetch('/api/finance?entity=billing-ledger').then(r => r.ok ? r.json() : []),
+                fetch('/api/finance?entity=accrual-budget').then(r => r.ok ? r.json() : []),
+                fetch('/api/finance?entity=bills-received').then(r => r.ok ? r.json() : []),
+                fetch('/api/finance?entity=payments').then(r => r.ok ? r.json() : []),
+                fetch('/api/finance?entity=vendors').then(r => r.ok ? r.json() : []),
+                fetch('/api/finance?entity=departments').then(r => r.ok ? r.json() : [])
             ]);
             this.ledgerData = ledger;
             this.accrualData = accrual;
