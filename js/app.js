@@ -39,7 +39,7 @@ const App = {
             const pass = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
 
-            if (email === 'admin@infrapro.com' && pass === 'admin123') {
+            if (email === 'bpillai100@gmail.com' && pass === 'Natty@2026!!') {
                 localStorage.setItem('infraSession', JSON.stringify({ user: 'Admin Manager', email: email, loginAt: Date.now() }));
                 errorEl.textContent = '';
                 this.init(); // Re-init with session
