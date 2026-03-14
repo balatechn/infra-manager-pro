@@ -125,7 +125,7 @@ export interface Permission {
 
 // ===== Finance Types =====
 export interface BillingLedger {
-  id: number;
+  id: string;
   projectId: string;
   vendorName: string;
   invoiceNumber: string;
@@ -142,7 +142,7 @@ export interface BillingLedger {
 }
 
 export interface AccrualBudget {
-  id: number;
+  id: string;
   projectId: string;
   month: string;
   department: string;
@@ -154,7 +154,7 @@ export interface AccrualBudget {
 }
 
 export interface BillReceived {
-  id: number;
+  id: string;
   vendorName: string;
   projectId: string;
   invoiceNumber: string;
@@ -168,7 +168,7 @@ export interface BillReceived {
 }
 
 export interface Payment {
-  id: number;
+  id: string;
   vendorName: string;
   invoiceNumber: string;
   paymentAmount: number;
@@ -181,7 +181,7 @@ export interface Payment {
 }
 
 export interface Vendor {
-  id: number;
+  id: string;
   name: string;
   contact: string;
   email: string;
@@ -189,7 +189,7 @@ export interface Vendor {
 }
 
 export interface Department {
-  id: number;
+  id: string;
   name: string;
 }
 

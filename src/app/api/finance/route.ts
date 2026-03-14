@@ -175,22 +175,22 @@ export async function PUT(req: NextRequest) {
     let result;
     switch (entity) {
       case "billing-ledger":
-        result = await prisma.billing_ledger.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.billing_ledger.update>[0]["data"] });
+        result = await prisma.billing_ledger.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.billing_ledger.update>[0]["data"] });
         break;
       case "accrual-budget":
-        result = await prisma.accrual_budget.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.accrual_budget.update>[0]["data"] });
+        result = await prisma.accrual_budget.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.accrual_budget.update>[0]["data"] });
         break;
       case "bills-received":
-        result = await prisma.bills_received.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.bills_received.update>[0]["data"] });
+        result = await prisma.bills_received.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.bills_received.update>[0]["data"] });
         break;
       case "payments":
-        result = await prisma.payments.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.payments.update>[0]["data"] });
+        result = await prisma.payments.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.payments.update>[0]["data"] });
         break;
       case "vendors":
-        result = await prisma.vendors.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.vendors.update>[0]["data"] });
+        result = await prisma.vendors.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.vendors.update>[0]["data"] });
         break;
       case "departments":
-        result = await prisma.departments.update({ where: { id: Number(id) }, data: data as Parameters<typeof prisma.departments.update>[0]["data"] });
+        result = await prisma.departments.update({ where: { id: String(id) }, data: data as Parameters<typeof prisma.departments.update>[0]["data"] });
         break;
       default:
         return NextResponse.json({ error: "Invalid entity" }, { status: 400 });
@@ -209,22 +209,22 @@ export async function DELETE(req: NextRequest) {
   try {
     switch (entity) {
       case "billing-ledger":
-        await prisma.billing_ledger.delete({ where: { id: Number(id) } });
+        await prisma.billing_ledger.delete({ where: { id: String(id) } });
         break;
       case "accrual-budget":
-        await prisma.accrual_budget.delete({ where: { id: Number(id) } });
+        await prisma.accrual_budget.delete({ where: { id: String(id) } });
         break;
       case "bills-received":
-        await prisma.bills_received.delete({ where: { id: Number(id) } });
+        await prisma.bills_received.delete({ where: { id: String(id) } });
         break;
       case "payments":
-        await prisma.payments.delete({ where: { id: Number(id) } });
+        await prisma.payments.delete({ where: { id: String(id) } });
         break;
       case "vendors":
-        await prisma.vendors.delete({ where: { id: Number(id) } });
+        await prisma.vendors.delete({ where: { id: String(id) } });
         break;
       case "departments":
-        await prisma.departments.delete({ where: { id: Number(id) } });
+        await prisma.departments.delete({ where: { id: String(id) } });
         break;
       default:
         return NextResponse.json({ error: "Invalid entity" }, { status: 400 });

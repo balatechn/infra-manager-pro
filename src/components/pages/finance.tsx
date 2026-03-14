@@ -37,8 +37,9 @@ export default function FinancePage() {
   const fetchData = async (entity: string) => {
     try {
       const res = await fetch(`/api/finance?entity=${entity}`);
+      if (!res.ok) return [];
       const data = await res.json();
-      return data;
+      return Array.isArray(data) ? data : [];
     } catch { return []; }
   };
 
