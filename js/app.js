@@ -7,6 +7,13 @@ const App = {
     currentParams: null,
 
     async init() {
+        // Check if user is logged in
+        const session = localStorage.getItem('infraSession');
+        if (!session) {
+            this.showLogin();
+            return;
+        }
+        this.showApp();
         // Load data from Neon DB API (falls back to static data)
         await AppData.loadFromAPI();
         this.bindNavigation();
@@ -17,6 +24,47 @@ const App = {
         this.bindKeyboard();
         this.bindTheme();
         this.navigate('dashboard');
+    },
+
+    showLogin() {
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.querySelector('.top-nav').style.display = 'none';
+        document.getElementById('pageNav').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'none';
+
+        const form = document.getElementById('loginForm');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+
+            if (email === 'admin@infrapro.com' && pass === 'admin123') {
+                localStorage.setItem('infraSession', JSON.stringify({ user: 'Admin Manager', email: email, loginAt: Date.now() }));
+                errorEl.textContent = '';
+                this.init(); // Re-init with session
+            } else {
+                errorEl.textContent = 'Invalid email or password';
+            }
+        };
+    },
+
+    showApp() {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.querySelector('.top-nav').style.display = '';
+        document.getElementById('pageNav').style.display = '';
+        document.getElementById('mainContent').style.display = '';
+    },
+
+    logout() {
+        localStorage.removeItem('infraSession');
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.querySelector('.top-nav').style.display = 'none';
+        document.getElementById('pageNav').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').textContent = '';
     },
 
     destroyCharts() {
@@ -225,8 +273,7 @@ const App = {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to logout?')) {
-                    localStorage.clear();
-                    window.location.reload();
+                    App.logout();
                 }
             });
         }

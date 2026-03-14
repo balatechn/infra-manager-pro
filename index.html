@@ -15,6 +15,30 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 8h2m4 0h4M7 12h10"/></svg>
+                <h1>Infra Manager <span class="logo-pro">Pro</span></h1>
+                <p class="login-subtitle">IT Infrastructure Project Management</p>
+            </div>
+            <form id="loginForm" autocomplete="off">
+                <div class="login-field">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="admin@infrapro.com" required autocomplete="username">
+                </div>
+                <div class="login-field">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+            <p class="login-hint">Demo: admin@infrapro.com / admin123</p>
+        </div>
+    </div>
+
     <!-- Top Navigation Bar -->
     <header class="top-nav">
         <div class="nav-left">
