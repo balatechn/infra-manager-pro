@@ -81,6 +81,10 @@ const App = {
                 main.innerHTML = AssetsPage.render();
                 AssetsPage.init();
                 break;
+            case 'finance':
+                main.innerHTML = FinancePage.render();
+                FinancePage.init();
+                break;
             case 'settings':
                 main.innerHTML = SettingsPage.render();
                 SettingsPage.init();
