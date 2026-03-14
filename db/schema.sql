@@ -88,3 +88,42 @@ CREATE TABLE IF NOT EXISTS activities (
     time TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ===== Role-Based Access Control =====
+
+CREATE TABLE IF NOT EXISTS roles (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    color TEXT DEFAULT '#2563EB',
+    is_system BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS permissions (
+    id SERIAL PRIMARY KEY,
+    key TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    description TEXT,
+    module TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    initials TEXT,
+    avatar TEXT DEFAULT 'bg-1',
+    role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL,
+    status TEXT DEFAULT 'Active',
+    department TEXT,
+    phone TEXT,
+    last_active TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

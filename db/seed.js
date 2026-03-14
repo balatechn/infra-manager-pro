@@ -238,6 +238,107 @@ async function seed() {
         await sql`INSERT INTO activities (type, text, time) VALUES (${a.type}, ${a.text}, ${a.time})`;
     }
 
+    // ===== Seed Roles & Permissions =====
+    console.log('Seeding roles & permissions...');
+    await sql`DELETE FROM users`;
+    await sql`DELETE FROM role_permissions`;
+    await sql`DELETE FROM permissions`;
+    await sql`DELETE FROM roles`;
+
+    const roles = [
+        { name: 'Admin', description: 'Full system access. Can manage users, roles, settings, and all project data.', color: '#EF4444', isSystem: true },
+        { name: 'Project Manager', description: 'Manage projects, tasks, teams, and budgets. Cannot manage system settings or users.', color: '#2563EB', isSystem: true },
+        { name: 'Engineer', description: 'View and update assigned tasks, assets, and kanban boards. Read-only access to projects.', color: '#22C55E', isSystem: true },
+        { name: 'Viewer', description: 'Read-only access to dashboards, projects, and reports. No edit permissions.', color: '#94A3B8', isSystem: true }
+    ];
+
+    const roleIds = {};
+    for (const r of roles) {
+        const rows = await sql`INSERT INTO roles (name, description, color, is_system) VALUES (${r.name}, ${r.description}, ${r.color}, ${r.isSystem}) RETURNING id`;
+        roleIds[r.name] = rows[0].id;
+    }
+
+    const permissions = [
+        // Dashboard
+        { key: 'dashboard.view', name: 'View Dashboard', description: 'Access the main dashboard', module: 'Dashboard' },
+        // Projects
+        { key: 'projects.view', name: 'View Projects', description: 'View project list and details', module: 'Projects' },
+        { key: 'projects.create', name: 'Create Projects', description: 'Create new projects', module: 'Projects' },
+        { key: 'projects.edit', name: 'Edit Projects', description: 'Edit project details and status', module: 'Projects' },
+        { key: 'projects.delete', name: 'Delete Projects', description: 'Delete projects', module: 'Projects' },
+        // Tasks
+        { key: 'tasks.view', name: 'View Tasks', description: 'View task list and hierarchy', module: 'Tasks' },
+        { key: 'tasks.create', name: 'Create Tasks', description: 'Create new tasks', module: 'Tasks' },
+        { key: 'tasks.edit', name: 'Edit Tasks', description: 'Edit task details and status', module: 'Tasks' },
+        { key: 'tasks.delete', name: 'Delete Tasks', description: 'Delete tasks', module: 'Tasks' },
+        // Kanban
+        { key: 'kanban.view', name: 'View Kanban', description: 'View kanban board', module: 'Kanban' },
+        { key: 'kanban.edit', name: 'Edit Kanban', description: 'Move and update kanban cards', module: 'Kanban' },
+        // Gantt
+        { key: 'gantt.view', name: 'View Gantt', description: 'View Gantt timeline', module: 'Gantt' },
+        // Teams
+        { key: 'teams.view', name: 'View Team', description: 'View team workload and members', module: 'Teams' },
+        { key: 'teams.manage', name: 'Manage Team', description: 'Add/remove team members and assign roles', module: 'Teams' },
+        // Reports
+        { key: 'reports.view', name: 'View Reports', description: 'View reports and dashboards', module: 'Reports' },
+        { key: 'reports.export', name: 'Export Reports', description: 'Export/download reports', module: 'Reports' },
+        // Assets
+        { key: 'assets.view', name: 'View Assets', description: 'View infrastructure assets', module: 'Assets' },
+        { key: 'assets.manage', name: 'Manage Assets', description: 'Add, edit, and track assets', module: 'Assets' },
+        // Settings
+        { key: 'settings.view', name: 'View Settings', description: 'View application settings', module: 'Settings' },
+        { key: 'settings.manage', name: 'Manage Settings', description: 'Change application settings', module: 'Settings' },
+        // Users
+        { key: 'users.view', name: 'View Users', description: 'View user list', module: 'Users' },
+        { key: 'users.manage', name: 'Manage Users', description: 'Create, edit, deactivate users', module: 'Users' },
+        { key: 'roles.manage', name: 'Manage Roles', description: 'Create and edit roles and permissions', module: 'Users' }
+    ];
+
+    const permIds = {};
+    for (const p of permissions) {
+        const rows = await sql`INSERT INTO permissions (key, name, description, module) VALUES (${p.key}, ${p.name}, ${p.description}, ${p.module}) RETURNING id`;
+        permIds[p.key] = rows[0].id;
+    }
+
+    // Assign permissions to roles
+    const allPermKeys = permissions.map(p => p.key);
+    const pmPerms = allPermKeys.filter(k => !k.startsWith('settings.manage') && !k.startsWith('users.manage') && !k.startsWith('roles.manage'));
+    const engPerms = ['dashboard.view', 'projects.view', 'tasks.view', 'tasks.edit', 'kanban.view', 'kanban.edit', 'gantt.view', 'teams.view', 'assets.view', 'reports.view'];
+    const viewerPerms = ['dashboard.view', 'projects.view', 'tasks.view', 'gantt.view', 'kanban.view', 'teams.view', 'reports.view', 'assets.view'];
+
+    const rolePermMap = {
+        'Admin': allPermKeys,
+        'Project Manager': pmPerms,
+        'Engineer': engPerms,
+        'Viewer': viewerPerms
+    };
+
+    for (const [roleName, permKeys] of Object.entries(rolePermMap)) {
+        for (const key of permKeys) {
+            await sql`INSERT INTO role_permissions (role_id, permission_id) VALUES (${roleIds[roleName]}, ${permIds[key]})`;
+        }
+    }
+
+    // ===== Seed Users =====
+    console.log('Seeding users...');
+    const users = [
+        { name: 'Arun Kumar', email: 'arun.kumar@inframanager.io', initials: 'AK', avatar: 'bg-1', role: 'Admin', status: 'Active', department: 'Network Engineering', phone: '+91 98765 43210' },
+        { name: 'Rahul Sharma', email: 'rahul.sharma@inframanager.io', initials: 'RS', avatar: 'bg-2', role: 'Project Manager', status: 'Active', department: 'Project Management', phone: '+91 98765 43211' },
+        { name: 'Vikas Nair', email: 'vikas.nair@inframanager.io', initials: 'VN', avatar: 'bg-3', role: 'Engineer', status: 'Active', department: 'Security', phone: '+91 98765 43212' },
+        { name: 'Priya Patel', email: 'priya.patel@inframanager.io', initials: 'PP', avatar: 'bg-4', role: 'Project Manager', status: 'Active', department: 'Infrastructure', phone: '+91 98765 43213' },
+        { name: 'Karthik R', email: 'karthik.r@inframanager.io', initials: 'KR', avatar: 'bg-5', role: 'Engineer', status: 'Active', department: 'Field Operations', phone: '+91 98765 43214' },
+        { name: 'Deepa Menon', email: 'deepa.menon@inframanager.io', initials: 'DM', avatar: 'bg-1', role: 'Engineer', status: 'Active', department: 'Systems', phone: '+91 98765 43215' },
+        { name: 'Suresh Kumar', email: 'suresh.kumar@inframanager.io', initials: 'SK', avatar: 'bg-2', role: 'Engineer', status: 'Active', department: 'Wireless', phone: '+91 98765 43216' },
+        { name: 'Ananya Singh', email: 'ananya.singh@inframanager.io', initials: 'AS', avatar: 'bg-3', role: 'Engineer', status: 'Active', department: 'Field Operations', phone: '+91 98765 43217' },
+        { name: 'Meera Reddy', email: 'meera.reddy@inframanager.io', initials: 'MR', avatar: 'bg-4', role: 'Viewer', status: 'Active', department: 'Management', phone: '+91 98765 43218' },
+        { name: 'Ravi Desai', email: 'ravi.desai@inframanager.io', initials: 'RD', avatar: 'bg-5', role: 'Viewer', status: 'Inactive', department: 'Operations', phone: '+91 98765 43219' }
+    ];
+
+    for (const u of users) {
+        await sql`INSERT INTO users (name, email, initials, avatar, role_id, status, department, phone)
+            VALUES (${u.name}, ${u.email}, ${u.initials}, ${u.avatar}, ${roleIds[u.role]}, ${u.status}, ${u.department}, ${u.phone})`;
+    }
+
     console.log('\n✅ Database seeded successfully!');
     console.log('   - 6 Projects with milestones');
     console.log('   - 23 Tasks (hierarchical)');
@@ -245,6 +346,9 @@ async function seed() {
     console.log('   - 8 Team members');
     console.log('   - 10 Assets');
     console.log('   - 8 Activity feed items');
+    console.log('   - 4 Roles (Admin, PM, Engineer, Viewer)');
+    console.log('   - 24 Permissions');
+    console.log('   - 10 Users');
 }
 
 seed().catch(err => {
