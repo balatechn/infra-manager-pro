@@ -1,8 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import AuthGuard from "@/components/auth/auth-guard";
-import TopNav from "@/components/layout/top-nav";
-import DashboardPage from "@/components/pages/dashboard";
+
+const TopNav = dynamic(() => import("@/components/layout/top-nav"), { ssr: false });
+const DashboardPage = dynamic(() => import("@/components/pages/dashboard"), { ssr: false });
 
 export default function Home() {
   return (
