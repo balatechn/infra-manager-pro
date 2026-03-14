@@ -42,6 +42,8 @@ const GanttPage = {
             <div class="gantt-left">
                 <div class="gantt-left-header">
                     <div>Task Name</div>
+                    <div>Assigned To</div>
+                    <div>Due Date</div>
                     <div style="text-align:right">Duration</div>
                 </div>
                 <div class="gantt-task-list">
@@ -71,12 +73,17 @@ const GanttPage = {
 
     renderTaskItem(task, level) {
         const hasChildren = task.children && task.children.length > 0;
+        const initials = task.assignedTo ? task.assignedTo.split(' ').map(n=>n[0]).join('') : '';
+        const firstName = task.assignedTo ? task.assignedTo.split(' ')[0] : '—';
+        const dueDate = task.endDate ? AppData.formatShortDate(task.endDate) : '—';
         let html = `
         <div class="gantt-task-item level-${level}">
             <div class="gantt-task-name">
                 ${hasChildren ? `<span class="expand-icon expanded"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>` : ''}
                 <span>${task.name}</span>
             </div>
+            <div class="gantt-task-assignee"><span class="avatar bg-${(task.assignedTo ? task.assignedTo.charCodeAt(0) % 5 : 0) + 1}" style="width:20px;height:20px;font-size:0.5rem;">${initials}</span> ${firstName}</div>
+            <div class="gantt-task-due">${dueDate}</div>
             <div class="gantt-task-duration">${task.duration}</div>
         </div>`;
 
