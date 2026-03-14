@@ -40,7 +40,7 @@ const App = {
             const errorEl = document.getElementById('loginError');
 
             if (email === 'bpillai100@gmail.com' && pass === 'Natty@2026!!') {
-                localStorage.setItem('infraSession', JSON.stringify({ user: 'Admin Manager', email: email, loginAt: Date.now() }));
+                localStorage.setItem('infraSession', JSON.stringify({ user: 'B Pillai', email: email, loginAt: Date.now() }));
                 errorEl.textContent = '';
                 this.init(); // Re-init with session
             } else {
@@ -54,6 +54,18 @@ const App = {
         document.querySelector('.top-nav').style.display = '';
         document.getElementById('pageNav').style.display = '';
         document.getElementById('mainContent').style.display = '';
+
+        // Update user dropdown with session info
+        try {
+            const session = JSON.parse(localStorage.getItem('infraSession'));
+            if (session) {
+                const initials = session.user.split(' ').map(w => w[0]).join('').toUpperCase();
+                document.getElementById('dropdownName').textContent = session.user;
+                document.getElementById('dropdownEmail').textContent = session.email;
+                document.getElementById('dropdownAvatar').textContent = initials;
+                document.querySelector('#userMenu span').textContent = initials;
+            }
+        } catch(e) {}
     },
 
     logout() {
