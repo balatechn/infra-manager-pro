@@ -1,0 +1,17 @@
+{
+  "name": "infra-manager-pro",
+  "version": "1.0.0",
+  "description": "IT Infrastructure Project Management System",
+  "private": true,
+  "scripts": {
+    "seed": "node db/seed.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "vercel": "^39.0.0"
+  }
+}

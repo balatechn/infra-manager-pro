@@ -1,0 +1,285 @@
+/* =============================================
+   Infra Manager Pro — Gantt Chart Styles
+   ============================================= */
+
+.gantt-wrapper {
+    display: flex;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-secondary);
+}
+
+/* Left Panel - Task List */
+.gantt-left {
+    width: 320px;
+    min-width: 320px;
+    border-right: 2px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.gantt-left-header {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border-light);
+    height: 54px;
+    align-items: end;
+    padding-bottom: 8px;
+}
+
+.gantt-task-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.gantt-task-item {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    padding: 0 14px;
+    height: 36px;
+    align-items: center;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.gantt-task-item:hover { background: var(--bg-hover); }
+
+.gantt-task-name {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gantt-task-name .expand-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+}
+
+.gantt-task-name .expand-icon.expanded { transform: rotate(90deg); }
+
+.gantt-task-item.level-0 .gantt-task-name { padding-left: 0; font-weight: 600; }
+.gantt-task-item.level-1 .gantt-task-name { padding-left: 20px; }
+.gantt-task-item.level-2 .gantt-task-name { padding-left: 40px; font-size: 0.75rem; color: var(--text-secondary); }
+
+.gantt-task-duration {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+/* Right Panel - Timeline */
+.gantt-right {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+}
+
+.gantt-timeline-header {
+    display: flex;
+    height: 54px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    min-width: max-content;
+}
+
+.gantt-month-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.gantt-month-label {
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.gantt-weeks {
+    display: flex;
+    flex: 1;
+}
+
+.gantt-week {
+    width: 80px;
+    text-align: center;
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gantt-rows {
+    position: relative;
+    min-width: max-content;
+}
+
+.gantt-row {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.gantt-row-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+}
+
+.gantt-cell {
+    width: 80px;
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.gantt-cell.today {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* Gantt Bars */
+.gantt-bar {
+    position: absolute;
+    height: 22px;
+    border-radius: 4px;
+    top: 7px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: filter var(--transition-fast);
+    z-index: 5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gantt-bar:hover {
+    filter: brightness(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+.gantt-bar.parent {
+    background: var(--primary);
+    opacity: 0.9;
+}
+
+.gantt-bar.child {
+    background: var(--info);
+    height: 18px;
+    top: 9px;
+}
+
+.gantt-bar.milestone {
+    width: 16px !important;
+    height: 16px;
+    top: 10px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+    background: var(--warning);
+    padding: 0;
+}
+
+.gantt-bar.critical {
+    background: var(--danger);
+}
+
+.gantt-bar.completed {
+    background: var(--success);
+}
+
+/* Dependencies */
+.gantt-dependency {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.gantt-dependency line {
+    stroke: var(--text-muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 4;
+}
+
+.gantt-dependency polygon {
+    fill: var(--text-muted);
+}
+
+/* Gantt Controls */
+.gantt-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.gantt-zoom-btn {
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    transition: all var(--transition-fast);
+}
+
+.gantt-zoom-btn:hover { border-color: var(--primary); color: var(--primary-light); }
+.gantt-zoom-btn.active { background: var(--primary-bg); border-color: var(--primary); color: var(--primary-light); }
+
+.gantt-legend {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+.gantt-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 6px;
+    border-radius: 2px;
+}
+
+.legend-color.parent { background: var(--primary); }
+.legend-color.child { background: var(--info); }
+.legend-color.critical { background: var(--danger); }
+.legend-color.milestone { background: var(--warning); width: 8px; height: 8px; transform: rotate(45deg); border-radius: 1px; }
+.legend-color.completed { background: var(--success); }

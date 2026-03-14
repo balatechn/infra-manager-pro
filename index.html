@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infra Manager Pro — IT Infrastructure Project Management</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/gantt.css">
+    <link rel="stylesheet" href="css/kanban.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 8h2m4 0h4M7 12h10"/></svg>
+                </div>
+                <span class="logo-text">Infra Manager <span class="logo-pro">Pro</span></span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <div class="search-bar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search projects, tasks, teams..." id="globalSearch">
+                <kbd>Ctrl+K</kbd>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="nav-btn create-btn" id="createTaskBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Create Task</span>
+            </button>
+            <button class="nav-btn icon-btn" id="notificationsBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span class="notification-badge">5</span>
+            </button>
+            <div class="user-avatar" id="userMenu">
+                <span>AM</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item active" data-page="dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="projects">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                    <span>Projects</span>
+                </li>
+                <li class="nav-item" data-page="tasks">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    <span>Tasks</span>
+                </li>
+                <li class="nav-item" data-page="gantt">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
+                    <span>Gantt Timeline</span>
+                </li>
+                <li class="nav-item" data-page="kanban">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+                    <span>Kanban Board</span>
+                </li>
+                <li class="nav-item" data-page="teams">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    <span>Teams</span>
+                </li>
+                <li class="nav-item" data-page="reports">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Reports</span>
+                </li>
+                <li class="nav-item" data-page="assets">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/></svg>
+                    <span>Assets</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    <span>Settings</span>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="storage-info">
+                <div class="storage-label">
+                    <span>Storage Used</span>
+                    <span>68%</span>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-fill" style="width:68%"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContent">
+        <!-- Pages are rendered here dynamically -->
+    </main>
+
+    <!-- Create Task Modal -->
+    <div class="modal-overlay" id="createTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create New Task</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Task Name</label>
+                    <input type="text" placeholder="Enter task name" class="form-input">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Project</label>
+                        <select class="form-input">
+                            <option>Bangalore Data Center</option>
+                            <option>Mangalore Showroom Network</option>
+                            <option>Chennai CCTV Setup</option>
+                            <option>Mysuru Office IT Setup</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select class="form-input">
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Assigned To</label>
+                    <select class="form-input">
+                        <option>Arun Kumar</option>
+                        <option>Rahul Sharma</option>
+                        <option>Vikas Nair</option>
+                        <option>Priya Patel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-input" rows="3" placeholder="Describe the task..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelModal">Cancel</button>
+                <button class="btn btn-primary">Create Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="btn-text">Mark all read</button>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item unread">
+                <div class="notif-icon danger">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <div class="notif-content">
+                    <p><strong>Bangalore Data Center</strong> — Router installation delayed by 3 days</p>
+                    <span>10 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notif-icon warning">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="notif-content">
+                    <p><strong>Budget Alert</strong> — Chennai CCTV project at 90% budget</p>
+                    <span>25 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notif-icon success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="notif-content">
+                    <p><strong>Milestone Completed</strong> — Mangalore network cabling done</p>
+                    <span>1 hour ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notif-icon info">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </div>
+                <div class="notif-content">
+                    <p><strong>Team Update</strong> — Priya assigned to Mysuru project</p>
+                    <span>2 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notif-icon success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="notif-content">
+                    <p><strong>Task Done</strong> — Server rack installation completed</p>
+                    <span>3 hours ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/pages/dashboard.js"></script>
+    <script src="js/pages/projects.js"></script>
+    <script src="js/pages/project-details.js"></script>
+    <script src="js/pages/tasks.js"></script>
+    <script src="js/pages/gantt.js"></script>
+    <script src="js/pages/kanban.js"></script>
+    <script src="js/pages/teams.js"></script>
+    <script src="js/pages/reports.js"></script>
+    <script src="js/pages/assets.js"></script>
+    <script src="js/pages/settings.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
