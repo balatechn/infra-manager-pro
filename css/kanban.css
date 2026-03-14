@@ -29,6 +29,18 @@
     padding: 14px 16px;
     border-bottom: 1px solid var(--border-light);
     flex-shrink: 0;
+    background: #0F172A;
+    border: 1px solid #F59E0B;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.kanban-column-header .column-title h4 {
+    color: #F1F5F9;
+}
+
+.kanban-column-header .column-count {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
 }
 
 .column-title {
@@ -197,4 +209,26 @@
     gap: 10px;
     margin-bottom: 16px;
     flex-wrap: wrap;
+}
+
+.kanban-filters .filter-input {
+    padding: 6px 12px;
+    background: #0F172A;
+    border: 1px solid #F59E0B;
+    border-radius: var(--radius-sm);
+    color: #F1F5F9;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    min-width: 150px;
+}
+
+.kanban-filters .filter-input:focus {
+    outline: none;
+    border-color: #FBBF24;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+.kanban-filters .filter-input option {
+    background: #0F172A;
+    color: #F1F5F9;
 }
