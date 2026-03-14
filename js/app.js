@@ -14,6 +14,7 @@ const App = {
         this.bindNotifications();
         this.bindSidebar();
         this.bindKeyboard();
+        this.bindTheme();
         this.navigate('dashboard');
     },
 
@@ -158,6 +159,22 @@ const App = {
                 if (window.innerWidth <= 768 && !pageNav.contains(e.target) && !toggle.contains(e.target)) {
                     pageNav.classList.remove('open');
                 }
+            });
+        }
+    },
+
+    bindTheme() {
+        const toggle = document.getElementById('themeToggle');
+        // Apply saved preference
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light') {
+            document.body.classList.add('light-mode');
+        }
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+                const isLight = document.body.classList.contains('light-mode');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
             });
         }
     },

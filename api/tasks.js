@@ -4,10 +4,8 @@ module.exports = async function handler(req, res) {
     const sql = getDb();
 
     if (req.method === 'GET') {
-        // Fetch all tasks
         const allTasks = await sql`SELECT * FROM tasks ORDER BY sort_order`;
 
-        // Build hierarchy: group children under parents
         const taskMap = {};
         const roots = [];
 
@@ -26,23 +24,42 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { id, project_id, parent_id, name, assigned_to, start_date, end_date, duration, dependency, progress, status, priority } = req.body;
-        const rows = await sql`INSERT INTO tasks (id, project_id, parent_id, name, assigned_to, start_date, end_date, duration, dependency, progress, status, priority)
-            VALUES (${id}, ${project_id}, ${parent_id || null}, ${name}, ${assigned_to}, ${start_date}, ${end_date}, ${duration}, ${dependency || ''}, ${progress || 0}, ${status || 'Planned'}, ${priority || 'Medium'})
+        const { id, project_id, parent_id, name, assigned_to, start_date, end_date, duration, dependency, progress, status, priority, sort_order } = req.body;
+        if (!id || !name) return res.status(400).json({ error: 'id and name are required' });
+        const rows = await sql`INSERT INTO tasks (id, project_id, parent_id, name, assigned_to, start_date, end_date, duration, dependency, progress, status, priority, sort_order)
+            VALUES (${id}, ${project_id}, ${parent_id || null}, ${name}, ${assigned_to}, ${start_date}, ${end_date}, ${duration || ''}, ${dependency || ''}, ${progress || 0}, ${status || 'Planned'}, ${priority || 'Medium'}, ${sort_order || 999})
             RETURNING *`;
         return res.status(201).json(rows[0]);
     }
 
     if (req.method === 'PUT') {
-        const { id, progress, status } = req.body;
+        const { id, name, assigned_to, start_date, end_date, duration, dependency, progress, status, priority } = req.body;
         if (!id) return res.status(400).json({ error: 'id is required' });
         const rows = await sql`UPDATE tasks SET
-            progress = COALESCE(${progress}, progress),
-            status = COALESCE(${status}, status)
+            name = COALESCE(${name}, name),
+            assigned_to = COALESCE(${assigned_to}, assigned_to),
+            start_date = COALESCE(${start_date}, start_date),
+            end_date = COALESCE(${end_date}, end_date),
+            duration = COALESCE(${duration}, duration),
+            dependency = COALESCE(${dependency}, dependency),
+            progress = COALESCE(${progress !== undefined ? progress : null}, progress),
+            status = COALESCE(${status}, status),
+            priority = COALESCE(${priority}, priority)
             WHERE id = ${id} RETURNING *`;
+        if (rows.length === 0) return res.status(404).json({ error: 'Task not found' });
         return res.json(rows[0]);
     }
 
-    res.setHeader('Allow', 'GET, POST, PUT');
+    if (req.method === 'DELETE') {
+        const { id } = req.body || {};
+        if (!id) return res.status(400).json({ error: 'id is required' });
+        // Delete children first, then parent
+        await sql`DELETE FROM tasks WHERE parent_id = ${id}`;
+        const rows = await sql`DELETE FROM tasks WHERE id = ${id} RETURNING *`;
+        if (rows.length === 0) return res.status(404).json({ error: 'Task not found' });
+        return res.json({ deleted: rows[0] });
+    }
+
+    res.setHeader('Allow', 'GET, POST, PUT, DELETE');
     return res.status(405).json({ error: 'Method not allowed' });
 };

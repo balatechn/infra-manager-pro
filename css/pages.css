@@ -147,7 +147,7 @@
 
 .task-row {
     display: grid;
-    grid-template-columns: 2fr 100px 100px 80px 130px 120px 120px 100px;
+    grid-template-columns: 2fr 90px 90px 80px 120px 120px 100px 90px;
     align-items: center;
     padding: 8px 16px;
     border-bottom: 1px solid var(--border-light);
@@ -196,6 +196,95 @@
 .task-row.level-1 .task-name-cell { padding-left: 24px; }
 .task-row.level-2 .task-name-cell { padding-left: 48px; }
 .task-row.level-3 .task-name-cell { padding-left: 72px; }
+
+/* Task Row Action Buttons */
+.task-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.task-action-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.task-action-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.task-action-btn.edit:hover { color: var(--primary-light); }
+.task-action-btn.add-sub:hover { color: var(--success); }
+.task-action-btn.delete:hover { color: var(--danger); }
+
+/* Task Edit/Create Modal */
+.task-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+}
+
+.task-modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.task-modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    width: 540px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform var(--transition-normal);
+}
+
+.task-modal-overlay.open .task-modal {
+    transform: translateY(0);
+}
+
+.task-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.task-modal-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.task-modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.task-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-light);
+}
 
 /* ===== Team Workload ===== */
 .team-grid {
